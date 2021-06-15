@@ -61,4 +61,4 @@ To plot the results of the analysis for comparison, type the following into the 
 python main.py plot
 ```
 
-## boxPlot is designed to work in environments where the classifier objects are saved after instantiation such as Spyder and Jupyter Notebook
+### boxPlot is designed to work in environments where the classifier objects are saved after instantiation such as Spyder and Jupyter Notebook
