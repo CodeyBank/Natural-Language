@@ -124,6 +124,8 @@ class NLToolBox:
         classifier.fit(self.X_train, self.y_train)
         y_pred = classifier.predict(self.X_test)
 
+        print('Random Forest Classifier')
+
         print("*****  Confusion Matrix ******* \n")
         print(confusion_matrix(self.y_test, y_pred))
 
@@ -156,11 +158,11 @@ class NLToolBox:
         y_pred = knc.predict(self.X_test)
 
         cm = confusion_matrix(self.y_test, y_pred)
-        print(cm)
+        print("K-Neighbours Classifier")
         print("Training score: ", score)
 
         print("*****  Confusion Matrix ******* \n")
-        print(confusion_matrix(self.y_test, y_pred))
+        print(cm)
 
         print("*****  Classification report ******* \n")
         print(classification_report(self.y_test, y_pred))
@@ -195,7 +197,7 @@ class NLToolBox:
         # Make predictions
         preds = gnb.predict(self.X_test)
 
-        print("*****  Accuracy Score ******* \n")
+        print("*****  Naive Bayes Classifier ******* \n")
         print(accuracy_score(self.y_test, preds))
 
         report = classification_report(self.y_test, preds)
@@ -227,7 +229,7 @@ class NLToolBox:
         svc.fit(self.X_train, self.y_train)
         score = svc.score(self.X_train, self.y_train)
 
-        print("*****  Accuracy Score ******* \n")
+        print("*****  SVC Classifier ******* \n")
         print("Score: ", score)
 
         ## Cross-validaton  using 10-fold cross validation
@@ -259,7 +261,8 @@ class NLToolBox:
         y_prediction = oner.predict(self.X_train)
         train_acc = np.mean(y_prediction == self.y_train)
 
-        print(f'*****  Training accuracy: ******** \n  {train_acc * 100:.2f}%')
+        print("One-R Classifier")
+        print(f'Training accuracy: \n  {train_acc * 100:.2f}%')
         y_pred = oner.predict(self.X_test)
         test_acc = np.mean(y_pred == self.y_test)
         print(f'Test accuracy {test_acc * 100:.2f}%')
@@ -298,7 +301,7 @@ class NLToolBox:
         y_predict = model.predict(self.X_test)
         score = accuracy_score(self.y_test, y_predict)
 
-        print("*****  Accuracy Score ******* \n")
+        print("*****  Decision Tree Classifier ******* \n")
         print("Score: ", score)
 
         ## Cross-validaton  using 10-fold cross validation
@@ -336,7 +339,7 @@ class NLToolBox:
         y_predict = clf.predict(self.X_test)
         score = accuracy_score(self.y_test, y_predict)
 
-        print("*****  Accuracy Score ******* \n")
+        print("*****  Neural Network Classifier ******* \n")
         print("Score: ", score)
 
         ## Cross-validaton  using 10-fold cross validation
@@ -363,6 +366,7 @@ class NLToolBox:
            comparing with training results.
            @params:
             - modelpath: is the absolute file path to the model
+            - datapath: path to the dataset to be tested
         """
         
         with open(modelpath, 'rb') as training_model:
@@ -384,7 +388,7 @@ class NLToolBox:
         return
         
     
-    def boxPlot(self):
+    def Plot(self):
         """
             Create a box plot of all algorthims for testing
         """
@@ -401,47 +405,53 @@ class NLToolBox:
             fig = plt.figure()
             fig.suptitle('Algorithm Comparison')
             
-            ax = fig.add_axes([0,0,1,1])
-            ax.bar(names,results)     
-          
-            
+            plt.bar(names,results, color='orange', width=0.1)     
+            plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
+            plt.xlabel('Classifier')
+            plt.ylabel('Cross validation score')
             plt.show()
+            
         else:
             print("You must generate at least one classifier to plot")
+            
+        return
         
 if __name__ == '__main__':
-    w = NLToolBox(r"TextClass_text")
-    # argument = sys.argv[1]
-    
-    argument = sys.argv[1] if len(sys.argv) > 1 else None
-    modelpath = sys.argv[2] if len(sys.argv) > 2 else None
-    datapath = sys.argv[3] if len(sys.argv) > 3 else None
-    
-    # if len(sys.argv) > 3:
-    #     modelpath = sys.argv[2]
-    #     datapath = sys.argv[3]
-    
     try:
-        if argument == "test" and modelpath and datapath:
-            w.testModel(modelpath, datapath)
-   
-        if argument == "DT":
-            w.decisionTreeClassifier()
-        elif argument == "OR":
-            w.one_RClassifier()
-        elif argument == "SVC":
-            w.svcClassifier()
-        elif argument == "NN":
-            w.neuralNetClassifier()
-        elif argument == "NB":
-            w.naiveBayes()
-        elif argument == "KN":
-            w.KNeighbors()
-        elif argument == "RF":
-            w.randomForest()
-        elif argument == "plot":
-            w.boxPlot()
-    
+        dataset_path = sys.argv[1]
+        #w = NLToolBox(r"TextClass_text")
+        w = NLToolBox(dataset_path)
+        
+        # Extract the command
+        command = sys.argv[2] if len(sys.argv) > 1 else None
+
+
+        if command == "-t":
+            modelpath = sys.argv[3] if len(sys.argv) > 2 else None
+            w.testModel(modelpath, dataset_path)
+                     
+        if command == "-rs":
+            print(sys.argv[2:])
+            # run the selected classifiers in the command from index 2 to end
+            for argument in sys.argv:
+                if argument == "DT":
+                    w.decisionTreeClassifier()
+                if argument == "OR":
+                    w.one_RClassifier()
+                if argument == "SVC":
+                    w.svcClassifier()
+                if argument == "NN":
+                    w.neuralNetClassifier()
+                if argument == "NB":
+                    w.naiveBayes()
+                if argument == "KN":
+                    w.KNeighbors()
+                if argument == "RF":
+                    w.randomForest() 
+            w.Plot()
+        else:
+            print("""Please pass the right command first.\n Use 'rs' to run selected classifier algorithms or use 'test' to test a model""")
+            
     except (TypeError, FileNotFoundError):
         error= """
         Please Select a classifier to run \n
@@ -456,7 +466,7 @@ if __name__ == '__main__':
         To test a model with another dataset use the following
         python main.py test <model_path> <dataset_path> 
         
-        Boxplot method can only work on Jupyter Notebook and Spyder
+        Plot method plots the selected algorithm cross validation scores
         """
         print(error)
         
